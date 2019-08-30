@@ -8,7 +8,7 @@ This is a protobuf-decoder which can decode protobuf binary file without .proto 
 2. `python write_msg.py ADDRESS_BOOK_FILE`
 
     Enter a telephone number and press <Enter> twice. Now you have a protobuf binary file called ADDRESS_BOOK_FILE.
-3. `python parse.py ADDRESS_BOOK_FILE`
+3. `python parse.py --decode --input ADDRESS_BOOK_FILE`
 
     Now you can see the decoded field looks like:
     
