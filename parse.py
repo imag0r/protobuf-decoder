@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import sys
+import argparse
 import codecs
 import struct
 import json
@@ -211,8 +211,8 @@ def ParseData(data, start, end, messages, depth = 0):
 
     return True
 
-def ParseProto(fileName):
-    data = open(fileName, "rb").read()
+def ParseProto(file):
+    data = file.read()
     size = len(data)
 
     messages = {}
@@ -418,53 +418,28 @@ def ReEncode(messages, output):
     return byteWritten
     
 
-def SaveModification(messages, fileName):
+def SaveModification(messages, file):
     output = list()
     ReEncode(messages, output)
-    f = open(fileName, 'wb')
-    f.write(bytearray(output))
-    f.close()
+    file.write(bytearray(output))
     
 
 if __name__ == "__main__":
-    if sys.argv[1] == "dec":
-        messages = ParseProto('tmp.pb')
+    parser = argparse.ArgumentParser(description='Decode/Encode Protobufs')
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-d', '--decode', action='store_true')
+    group.add_argument('-e', '--encode', action='store_true')
+    parser.add_argument('-i', '--input', type=argparse.FileType('rb'), default='-')
+    parser.add_argument('-o', '--output', type=argparse.FileType('wb'), default='-')
+    args = parser.parse_args();
 
-        f = open('tmp.json', 'wb')
-        json.dump(messages, f, indent=4, sort_keys=True, ensure_ascii=False, encoding='utf-8')
-        f.close()
+    if args.decode:
+        messages = ParseProto(args.input)
+        json.dump(messages, args.output, indent=4, sort_keys=True, ensure_ascii=False, encoding='utf-8')
 
-        #for str in strings:
-        #    try:
-        #        print str,
-        #    except:
-        #        pass
-        f.close()
+    elif args.encode:
+        messages = json.load(args.input, encoding='utf-8')
+        SaveModification(messages, args.output)
 
-    elif sys.argv[1] == "enc":
-
-        f = codecs.open('tmp.json', 'r', 'utf-8')
-        messages = json.load(f, encoding='utf-8')
-        f.close()
-
-        SaveModification(messages, "tmp.pb")
-
-    else:
-        messages = ParseProto(sys.argv[1])
-
-        print json.dumps(messages, indent=4, sort_keys=True, ensure_ascii=False, encoding='utf-8')
-
-        # modify any field you like
-        #messages['01:00:embedded message']['01:00:string'] = "あなた"
-
-        # dump and reload the 'messages' json objects to ensure it being utf-8 encoded
-        f = open('tmp.json', 'wb')
-        json.dump(messages, f, indent=4, sort_keys=True, ensure_ascii=False, encoding='utf-8')
-        f.close()
-        f = codecs.open('tmp.json', 'r', 'utf-8')
-        messages = json.load(f, encoding='utf-8')
-        f.close()
-
-        # the modification is saved in file named "modified"
-        SaveModification(messages, "modified")
-
+    args.input.close()
+    args.output.close()

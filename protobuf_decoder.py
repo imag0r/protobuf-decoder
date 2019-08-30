@@ -123,7 +123,7 @@ class ProtobufHelperTab(IMessageEditorTab):
 
             parsedJson = ''
             try:
-                proc = subprocess.Popen(['python', 'parse.py','dec'],\
+                proc = subprocess.Popen(['python', 'parse.py', '--decode', '--input', 'tmp.pb', '--output', 'tmp.json'],\
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 proc.wait()
                 #f = open('tmp.json', 'r')
@@ -169,7 +169,7 @@ class ProtobufHelperTab(IMessageEditorTab):
 
                 
             try:
-                proc = subprocess.Popen(['python', 'parse.py', 'enc'],\
+                proc = subprocess.Popen(['python', 'parse.py', '--encode', '--input', 'tmp.json', '--output', 'tmp.pb'],\
                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 proc.wait()
                 output = proc.stdout.read()
